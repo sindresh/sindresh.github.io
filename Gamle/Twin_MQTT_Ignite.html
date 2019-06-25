@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Wind Turbine | Cognite</title>
+		<link href="assets/css/style.css" rel="stylesheet">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			a {
+				color: skyblue
+			}
+			.button {
+                
+                background-color: #424242; /* Green */
+                border: 1 px;
+                border-color: #000000;
+                color: #eaeaea;
+                padding: 6px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                border-radius: 5px;
+			}
+            .buttonactive {
+                background-color: #424242; /* Green */
+                border: 1 px;
+                border-color: #000000;
+                color: #eaeaea;
+                padding: 6px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                border-radius: 5px;
+			}
+            .button:hover {
+                background-color: #17577e 
+                }
+            .button:active {
+                background-color: #188a8d;
+                box-shadow: 0 5px #141163;
+                transform: translateY(2px);
+            }
+			.highlight {
+				background: orange;
+				color: #fff;
+			}
+			span {
+				display: inline-block;
+				width: 60px;
+				text-align: center;
+            }
+            .moveGUI{ 
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+            #timeCounter {
+                text-align: center;
+                font-size: 40px;
+                margin-top:50px;
+                position:absolute;
+                z-index:5;
+                left: 25%;
+                right: 25%;
+            }
+            #titleContainer {
+                width: 300px;
+                height: 100px;
+                position: absolute;
+                background-color: #00000052;
+                border-radius: 2px; 
+                top: 10px;
+                left: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            #myDIV {
+                color: rgb(255, 255, 255);
+                margin-top: 2%;
+                margin-left:5%;
+                font-size: 20px;
+                
+            }
+            #myDIV2 {
+                color: rgb(255, 255, 255);
+                margin-top: 1%;
+                margin-left:5%;
+                font-size: 20px;
+                
+            }
+            #myStatus {
+                color: rgb(255, 255, 255);
+                margin-top: 1%;
+                margin-left:5%;
+                font-size: 20px;
+            }
+            #infoContainer {
+                display: flex;
+                justify-content: space-evenly;
+                flex-direction: row;
+                
+            }
+            #parentSlider{
+                visibility: hidden;
+                position:absolute;
+                z-index:5;
+                bottom: 15%;
+                width: 75%;
+                left: 12.5%;
+            }
+            label{
+                color: white; 
+            }
+            #slider-range-min{
+                background: rgb(51, 51, 51);
+
+            }
+            #container {
+                width: 200px;
+                height: 75px;
+                position: absolute;
+                background-color: #0000002f;
+                border-radius: 10px; 
+                bottom: 10px;
+                right: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            #logoContainer {
+                display: flex;
+                justify-content: space-evenly;
+                flex-direction: row;
+            }
+
+		</style>
+	</head>
+
+	<body>
+        <div id="container">
+                <div id="logoContainer">
+                    <img src="https://thumbor.abakus.no/A4aWKLDKu8J3ezhNPFRlcaQJdEw=/0x500/Cognite-HORIZONTAL-or-LIGHT.jpg" alt="HTML5 Icon" height = "50">
+                    
+                </div>
+            </div>
+
+        <div id = parentSlider
+            <p>
+                <label for="amount">Windspeed:</label>
+                <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold; ">
+            </p>
+            <div id="slider-range-min"></div>
+        </div>
+
+
+        <div id="titleContainer">
+                <div id="myDIV">Currently powering: </div>
+                <div id="myDIV2">0 homes </div>
+                <div id="myStatus">Status: Off </div>
+            </div>
+
+        <p id="timeCounter"></p>
+
+        <div id="canvas-3d" class="viewer"></div>
+        
+        <!-- Counter counting days when in game mode -->
+
+		<!-- External libraries -->
+        
+        <script src="assets/js/three.js"></script>
+        
+
+		<!--<script src="../assets/libs/three.min.js"></script>-->
+		
+		<script src="assets/libs/RequestAnimationFrame.js"></script>
+		<script src="assets/libs/jquery.min.js"></script>
+		<script src="assets/libs/three/OrbitControls.js"></script>
+		<script src="assets/libs/FastBlur.js"></script>
+        <script src="assets/libs/konami.js"></script>
+        
+        <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+
+		<script src="https://threejs.org/examples/js/utils/GeometryUtils.js"></script>
+		<script src="https://threejs.org/examples/js/loaders/STLLoader.js"></script>
+        <script src="assets/js/detector.js"></script>
+		<script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+		<script src="https://unpkg.com/three.texttexture"></script>
+		<script src="assets/js/three.textsprite.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+
+		
+		<!-- Terrain generator -->
+		<script src="assets/libs/terrain-generator/mersenne-twister.js"></script>
+		<script src="assets/libs/terrain-generator/blur.js"></script>
+		<script src="assets/libs/terrain-generator/destructure.js"></script>
+		<script src="assets/libs/terrain-generator/mountains.js"></script>
+		<script src="assets/libs/terrain-generator/perlinnoise.js"></script>
+		<script src="assets/libs/terrain-generator/terraingen.js"></script>
+        <script src="assets/libs/terrain-generator/circle.js"></script>
+        
+        
+		<!-- Water shader -->
+        <script src="../water-material.js"></script>
+        
+		<!-- Demo files -->
+		<script src="assets/js/window.js"></script>
+		<script src="assets/js/demo.js"></script>
+        <script src="assets/js/main.js"></script>
+
+        <!-- Demo files -->
+        <script type='text/javascript' src='assets/js/Tween.js'></script>
+
+        <!-- Sweet alert -->
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+        <!-- Slider -->
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        
+		<div style='position: fixed; bottom: 10px; width:inherit; text-align: left; z-index: 1;'>
+			<ul id="sensorText" , style='list-style-type: none;'>
+				<li id="RPM"></li>
+				<li id="Current"></li>
+				<li id="pot"></li>
+				<li id="avgDelay"></li>
+			</ul>
+        </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div  class = 'moveGUI'>
+        </div>
+
+		<script>
+            /*
+            var exampleSocket1 = new WebSocket('ws://192.168.10.53:8001/')
+            exampleSocket1.onmessage = function (event) {
+                pos = JSON.parse(event.data);
+                console.log(pos);
+            }
+            */
+            if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+            //charts
+            var criticalVals = new Array(datapoints);
+            var criticalVals2 = new Array(datapoints);
+            var datapoints = 50;
+            var stdData = new Array(datapoints);
+            var length = stdData.length;
+            var counter = 0;
+            var boundary = 5;
+
+            var score = 0;
+            var enableCognite = false;
+            var warningGiven = false; 
+
+            var enableRemoteOperation = false; 
+            //duration
+            var startTime = new Date().getTime();
+            var seconds2 = 0;
+            var minutes2 = 0;
+            var hours2 = 0;
+            var days2 = 0;
+
+            var malfunctionCounter=0;
+            var enableMalfunction = false;
+            var malfunctionIsActive = false; 
+            var maintenanceRequested = false; 
+            var statusOK = true; 
+
+            var statusOperationText = ""; 
+
+            var maintenancePart1 = false, maintenancePart2 = false, maintenancePart3 = false, maintenancePart4 = false;
+
+            var malfunctionIsPredicted = false; 
+
+            var noise = 0;
+
+            
+            var malfNoise = new Array(7); 
+            for(var i = 0; i < 7; i++) {
+                malfNoise[i] = 0;
+            }
+
+            var randomSensor = -1;
+         
+//generate statustext
+            var previous = false; 
+            var part1 = '';
+            var part2 = '';
+            var part3 = '';
+            var part4 = '';
+
+            var rotorPhaseAdjust = false; 
+
+            //To make buttons visible 
+            //const buttonElement = document.getElementById("addData").parentElement;
+
+            //used to change background color of graphs in chartjs
+            
+            //defines how long time the operator has got left before maintainance has to be requested
+            var hoursOfError = 0; 
+
+            //Maintainance cost
+            var efficiencyLoss = 500;
+            var gameOverLoss = 5000;
+            var extraAmountUsed = 1200;
+            var stepSize = 1; 
+            var dayCounter = 0;
+            var componentPrice = 1200; 
+             
+            //setting run once only on dataset for chart number two. 
+            var executed = false;
+
+            // Global variables
+            // Sensor data
+            var reciveDataRate = 600; // ms
+            var rpm = 0;
+            var rpmextra;
+            var smoothedRPM = 0;
+            var timestampRPM = 0;
+            var smootedMW = 0;
+            var current = 0;
+            var timestampCurrent = 0;
+            var wind = 0;
+            var windextra = 0; 
+            var smoothedWind = 0;
+            var smoothedSlider = 0; 
+            var timestampPot = 0;
+            var delayRPM = 0;
+            var delayCurrent = 0;
+            var delayWind = 0;
+            var avgDelay = 0;
+            var isOnline = false;
+
+            var sliderWindValue = 10; 
+
+            var smoothedMw = 0; 
+            var smoothedTorque = 0; 
+
+            var smoothedHousesPowered = 0; 
+            var housesPowered = 0; 
+
+
+
+            //Send data to Cognite platform: 
+            
+            
+            //var url = 'https://api.cognitedata.com/api/0.3/projects/demo/timeseries/data';
+            var apiKey = 'UJMR4MSoNHx84Pt5yGSdTx9M8rsQujed';
+            var maxSendRate = 500;
+           
+            // Debugging
+            var lastSendTime = 0;
+            var lastSendThrottleTime = 0; 
+            var nowSend = 0;
+
+            var highscoreEnabled = 'highscoreEnabled';
+            var highscoreDisabled = 'highscoreDisabled';
+
+            var throttle = 0; 
+
+
+            // Graphics
+            var base, rotor, hub, arrow;
+            var rotor2, rotor3, rotor4, rotor5;
+            var rotorMatrix = [];
+            var i;
+            var j; 
+            var amountLength = 11; 
+            var amountWidth = 4; 
+            var turbineMatrix = []; 
+            var rotorClone = {
+                rotation:[],
+            }
+
+            var rotorClonePosition; 
+
+
+
+            var helicopter, helicopterRotor, helicopterRear;
+            //var animate = false;
+            //to manipulate the sensor values when malfunction should occur. 
+            manipulator =  Array.apply(null, Array(6)).map(Number.prototype.valueOf,0);
+
+            var controls;
+            var oldTime = Date.now();
+            var absPos = 0;
+            var power, powerBar, greenMaterial, backGroundMaterial, powerMesh, powerBarBackGroundMesh;
+            var maxPower = 12; //Maximum "power" generated to scale the power bar
+            var arrowMesh;
+            var partOfCircle = 0.1;
+            var context1;
+
+            var anglePrevTime = 0;
+            var angleCurrent = 0;
+            var angleWanted = 0;
+            var angleSpeed = 0;
+            var windPos = 0;
+
+            var waveAnimate = 0; 
+            
+
+            var remoteWind = 0;
+
+            var now;
+            var details;
+            var powerTextMesh;
+            var powerTextMaterial;
+            var powerText = "powerText";
+            var rpmTextSprite;
+            var rpmText = "rpmText";
+            var torqueTextSprite;
+            var torqueText = "torqueText";
+
+            //var scoreTextSprite;
+            var scoreText ="Too low wind to operate!";
+            
+            var scoreTextSprite = new THREE.TextSprite({
+                            
+                            textSize: 80,
+                            texture: {
+                                text: scoreText,
+                                fontFamily: 'Arial, Helvetica, sans-serif',
+                            },
+                            material: {
+                                
+                                color: 0xffffff,
+                                
+                            }
+                        });
+
+
+            //Game mode
+            var operationalExpenses = 0;
+            var operationsOK = true; 
+            var startNow = false; 
+
+            //var chooseMode;
+
+            var sensorVerdi1=0, sensorVerdi2=0, sensorVerdi3=0, sensorVerdi4=0, sensorVerdi5=0, sensorVerdi6=0, sensorVerdi7=0, sensorVerdi8=0, sensorVerdi9=0, sensorVerdi10=0; 
+        
+            // Dat gui 
+            var datData = {
+                showPowerBar: true,
+                showRPM: true,
+                showTorque: true,
+                fetchData: true,
+                showWaves: true,
+                showFPS: false,
+                //show3DInfo: false,
+                //showText: true
+            }
+            
+            var sensorData = {
+                enableRemote: false,
+            }
+
+            var remoteWindSpeed= 10; 
+            var mwPerTurbine = 0; 
+            var mwThisTurbine = 0;
+            var smoothedThisTurbine = 0; 
+            
+            var clientId = Math.random();
+
+           
+
+            var mwEntirePark = 0; 
+
+            var maintenanceBtn = { 
+                add:function(){ 
+                    console.log("clicked") 
+                }
+            };
+            // GUI dat
+            var gui = new dat.GUI();
+            var f1 = gui.addFolder('Visualisation');
+            f1.add(datData, 'showPowerBar');
+            f1.add(datData, 'showRPM');
+            f1.add(datData, 'showTorque');
+            f1.add(datData, 'showWaves');
+
+            var f2 = gui.addFolder('More');
+            f2.add(datData, 'fetchData').listen();
+            //f2.add(datData, 'showText');
+            f2.add(datData, 'showFPS');
+            //f2.add(datData, 'show3DInfo');
+            
+            sensorData.enableRemote = false;
+            //var f0 = gui.addFolder('Remote operations');
+            
+            //Setting slidervalue equal to received wind when switching between remote operation and local.
+/*
+            f0.add(sensorData, 'enableRemote').name('Remote operate').onChange(function(newValue) {
+
+                if (newValue == true){
+                    remoteWindSpeed = wind;
+                    throttle = remoteWindSpeed;
+                    
+                    enableRemoteOperation = false;
+                    //sendDataToAPI();
+                    confirmRemote(); 
+                }
+                if (newValue == false){
+                    
+                    enableRemoteOperation = false; 
+                }
+            });
+            */
+
+            gui.close();
+
+            var update = function() {
+                requestAnimationFrame(update);
+            }
+            update();
+
+            var baseAPIURL = "https://api.cognitedata.com/api/0.5/projects/";
+            var projectName = 'demo';
+            var apiKey = "UJMR4MSoNHx84Pt5yGSdTx9M8rsQujed";
+            var lastTime = Date.now();
+
+            //THREE.Cache.enabled = true;
+            var container, stats, permalink, hex, color;
+            var group, textMesh1, textMesh2, textGeo, materials;
+
+            var scene = DEMO.ms_Scene;
+
+            // Kick off initialisation and animation
+            //init();
+            //animate();
+
+            function init(scene) {
+                // Make container
+                container = document.createElement('div');
+                document.body.appendChild(container);
+
+                // Init camera
+                //cameraTarget = new THREE.Vector3(1500, 1500, 0);
+                // Make scene
+                // For debugging - creating console to display THREE.js information
+                
+                details = document.createElement('div');
+                details.style.position = 'absolute';
+                details.style.bottom = '0px';
+                details.style.right = '0px';
+                details.style.width = '130px';
+                details.style['font-family'] = 'helvetica';
+                details.style.background = 'black';
+                details.style.color = 'white';
+                container.appendChild(details);
+
+                // Creating materials
+                backGroundMaterial = new THREE.MeshBasicMaterial({
+                    // 0x represents #
+                    color: 0x696969,
+                    wireframe: false,
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+                greenMaterial = new THREE.MeshBasicMaterial({
+                    // 0x represents #
+                    color: 0x32CD32,
+                    wireframe: false,
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+
+                // Turbine
+                var STLLoader = new THREE.STLLoader();
+                var textLoader = new THREE.FontLoader();
+                var stlScale = 1;
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular: 0x111111,
+                    side: THREE.DoubleSide,
+                    shininess: 200
+                });
+
+                // Loading base from STL file
+
+                STLLoader.load('Data2/motortube.stl', function(geometry) {
+                    // console.log('Starting loading base');
+                    base = new THREE.Mesh(geometry, material);
+                    base.position.set(0, -25, 0);
+                    base.rotation.set(-Math.PI/2, 0, Math.PI);
+                    base.scale.set(stlScale, stlScale, stlScale);
+                    base.castShadow = true;
+                    base.receiveShadow = true;
+                    scene.add(base);
+
+
+                    var turbine2 = base.clone();
+                    var turbine3 = base.clone();
+                    var turbine4 = base.clone();
+                    var turbine5 = base.clone();
+
+                    for (i = 0; i < amountLength; i++) {
+                        for (j = 0; j < amountWidth; j++) {
+                            if(i == 4 && j == 0){
+                            }
+
+                            else{
+                                var turbineNumber = i + (j*amountLength);  
+
+                                turbineMatrix[turbineNumber] = base.clone();
+                                turbineMatrix[turbineNumber].position.set(2000*j, -25, -8000+2000*i);
+                                turbineMatrix[turbineNumber].rotation = base.rotation.clone();
+
+                                scene.add(turbineMatrix[turbineNumber]);
+                            }  
+                        }
+                    }
+
+                    // Grey back ground of power bar
+                    powerBar = new THREE.BoxGeometry(5, 25, 80); // Must be in STLLoader to access base. Fix?
+                    powerBarBackGroundMesh = new THREE.Mesh(powerBar, backGroundMaterial);
+                    powerBarBackGroundMesh.position.set(0, 200, 200);
+                    base.add(powerBarBackGroundMesh);
+
+                    // Gren bar (the one that actually moves)
+                    power = new THREE.BoxGeometry(10, 20, 1);
+                    powerMesh = new THREE.Mesh(power, greenMaterial);
+                    // powerMesh.position.set(0, powerPos, 0);
+                    powerBarBackGroundMesh.add(powerMesh);
+
+
+                    powerTextMesh = new THREE.TextSprite({
+                        textSize: 10,
+                        texture: {
+                            text: powerText,
+                            fontFamily: 'Arial, Helvetica, sans-serif',
+                        },
+                        material: {
+                            color: 0xffffff
+                        }
+                    });
+                    powerTextMesh.position.set(0, 50, 0);
+                    powerBarBackGroundMesh.add(powerTextMesh);
+                
+                    //
+                    // Loading rotor from STL file
+                    STLLoader.load('Data2/rotor.stl', function(geometry) {
+                        rotor = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                            color: 0xffffff,
+                            specular: 0x111111,
+                            shininess: 1
+                        }));
+                        // rotor.material.color.b = 0.3;
+                        // rotor.material.color.g = 0.3;
+                        // console.log(rotor);
+                        
+                        rotor.position.set(20, 0, 380);
+                        rotor.rotation.set(0, 0.467*Math.PI, -0.0001 * now);
+                        //rotor.rotation.set(0, 0, -0.0001 * now);
+                        
+                        //rotor.rotation.set(Math.PI, 0 , 0);
+                        
+                        rotor.castShadow = true;
+                        rotor.receiveShadow = true;
+                        
+                        base.add(rotor);
+
+                        rotor2 = rotor.clone();
+                        rotor3 = rotor.clone();
+                        rotor4 = rotor.clone();
+                        rotor5 = rotor.clone();
+
+                        
+                        for (i = 0; i < amountLength; i++) {
+                                for (j = 0; j < amountWidth; j++) {
+                                    if(i == 4 && j == 0){
+                                    }
+
+                                    else{
+                                        var turbineNumber = i + (j*amountLength);
+                                        rotorClone = rotor.clone();
+                                        rotorMatrix[turbineNumber] =  rotorClone;
+                                        turbineMatrix[turbineNumber].add(rotorMatrix[turbineNumber]);
+                                    }
+                                }
+                            }
+
+                        turbine2.add(rotor2);
+                        turbine3.add(rotor3);
+                        turbine4.add(rotor4);
+                        turbine5.add(rotor5);
+                        
+                        torqueTextSprite = new THREE.TextSprite({
+                            textSize: 12,
+                            texture: {
+                                text: "Torque",
+                                fontFamily: 'Arial, Helvetica, sans-serif'
+                                
+                            },
+                            material: {
+                                color: 0xffffff,
+                                //lights: true,
+                            }
+                            /*
+                            size: 100,
+                            height: 100,
+                            curveSegments: 12,
+                            bevelEnabled: true,
+                            bevelThickness: 10,
+                            bevelSize: 8,
+                            bevelSegments: 5*/
+                        });
+                        
+                        torqueTextSprite.position.set(50, 0, 420); // ?, y, x
+                        base.add(torqueTextSprite);
+                
+                        //Going to update the score here:
+
+                        scoreTextSprite.position.set(-700, 1800, 75); // ?, y, x
+                        scoreTextSprite.renderOrder = 1;
+                        
+                        base.add(scoreTextSprite);
+                        
+
+                        STLLoader.load('Data/rotor_hub.stl', function(geometry) {
+                            hub = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                                color: 0xffffff,
+                                specular: 0x111111,
+                                shininess: 1
+                            }));
+
+                            // rotor.material.color.b = 0.3;
+                            // rotor.material.color.g = 0.3;
+                            // console.log(hub);
+                            
+                            hub.position.set(0, 270, 0);
+                            hub.rotation.set(0, Math.PI / 2, 0);
+                            hub.castShadow = true;
+                            hub.receiveShadow = true;
+                            hub.scale.set(1.01, 1.01, 1.01);
+                            
+                            //base.add(hub);
+                            //turbine2.add(hub.clone());
+                            //turbine3.add(hub.clone());
+                            //turbine4.add(hub.clone());
+                            //turbine5.add(hub.clone());
+
+                            // Torque text
+                           
+                        });
+
+
+                        STLLoader.load('Data/Helicopter_main.stl', function(geometry) {
+                            helicopter = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                                color: 0xffffff,
+                                specular: 0x111111,
+                                shininess: 1
+                            }));
+                            
+                            //helicopter = new THREE.Mesh(geometry, material);
+                            
+                            helicopter.position.set(0, 280, 5000);
+                            helicopter.rotation.set(-Math.PI/2, 0 , 0);
+                            helicopter.scale.set(0.005, 0.005, 0.005);
+                            
+                            helicopter.castShadow = true;
+                            helicopter.receiveShadow = true;
+                            scene.add(helicopter);
+                            helicopter.visible = false;
+                            
+                        
+                            /*
+                            helicopter.position.set(0, 280, 1000);
+                            helicopter.rotation.set(-Math.PI / 2, 0, 0);
+                            //rotor.rotation.set(0, Math.PI / 2, 0);
+                            helicopter.castShadow = true;
+                            helicopter.receiveShadow = true;
+                            helicopter.scale.set(0.01,0.01,0.01);
+                            scene.add(helicopter); 
+                            //helicopter.visible = false;
+                        })
+                        */
+
+                            STLLoader.load('Data/Helicopter_rotor.stl', function(geometry) {
+                                helicopterRotor = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                                    color: 0x000000,
+                                    specular: 0x111111,
+                                    shininess: 1
+                                }));
+
+                                helicopterRotor.position.set(0, 0 , 0);
+
+                                helicopterRotor.rotation.set(0, 0, 0);
+                                
+                                helicopterRotor.castShadow = true;
+                                helicopterRotor.receiveShadow = true;
+                                
+                                helicopter.add(helicopterRotor);
+
+                            });
+
+                            STLLoader.load('Data/Helicopter_rear.stl', function(geometry) {
+                                helicopterRear = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                                    color: 0x000000,
+                                    specular: 0x111111,
+                                    shininess: 1
+                                }));
+
+                                helicopterRear.position.set(0, -12200, -1350);
+                                helicopterRear.rotation.set(0, 0, 0);
+                                helicopterRear.castShadow = true;
+                                helicopterRear.receiveShadow = true;
+                                
+                                helicopter.add(helicopterRear);
+
+                            });
+                        });
+
+                        STLLoader.load('Data2/buoy.stl', function(geometry) {
+                            yellowBase = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                                color: 0xffa000,
+                                specular: 0x111111,
+                                shininess: 1
+                            }));
+
+                            // rotor.material.color.b = 0.3;
+                            // rotor.material.color.g = 0.3;
+                            // console.log(hub);
+                            
+                            yellowBase.position.set(0, 0, 0);
+                            yellowBase.rotation.set(0, 0, -Math.PI/6);
+                            yellowBase.castShadow = true;
+                            yellowBase.receiveShadow = true;
+                            yellowBase.scale.set(1.01, 1.01, 1.01);
+                            
+                            
+                            for (i = 0; i < amountLength; i++) {
+                                for (j = 0; j < amountWidth; j++) {
+                                    if(i == 4 && j == 0){
+                                    }
+
+                                    else{
+                                        var turbineNumber = i + (j*amountLength);  
+                                        //turbineMatrix[turbineNumber] = base.clone();
+                                        //turbineMatrix[turbineNumber].position.set(-1000*j, 0, 1000*i)
+                                        turbineMatrix[turbineNumber].add(yellowBase.clone());
+                                    }
+                                }
+                            }
+
+                            base.add(yellowBase);
+                            turbine2.add(yellowBase.clone());
+                            turbine3.add(yellowBase.clone());
+                            turbine4.add(yellowBase.clone());
+                            turbine5.add(yellowBase.clone());
+
+                            // Torque text
+                           
+                        });
+                    });
+
+                    STLLoader.load('Data/digital_twin_arrow.stl', function(geometry) {
+                        arrow = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+                            // 0x represents #
+                            color: 0x696969,
+                            wireframe: false,
+                            transparent: true,
+                            opacity: 0.8
+                        }));
+                        // rotor.material.color.b = 0.3;
+                        // rotor.material.color.g = 0.3;
+                        // console.log(arrow);
+                        var scaleFactor = 0.6;
+                        arrow.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                        arrow.position.set(13, 0, 200);
+                        arrow.rotation.set(0, Math.PI / 2, -Math.PI / 4);
+                        arrow.castShadow = true;
+                        arrow.receiveShadow = true;
+                        base.add(arrow);
+
+                        rpmTextSprite = new THREE.TextSprite({
+                            textSize: 18,
+                            texture: {
+                                text: rpmText,
+                                fontFamily: 'Arial, Helvetica, sans-serif'
+                            },
+                            material: {
+                                color: 0xffffff
+                            }
+                        });
+                        rpmTextSprite.position.set(15, 120, 30); // ?, ?, y
+                        arrow.add(rpmTextSprite);
+                    });
+                });
+
+                // stats
+                stats = new Stats();
+                container.appendChild(stats.dom);
+
+                // render
+                // console.log("End init()");
+            }
+            // end inti()
+
+            function addShadowedLight(x, y, z, color, intensity) {
+                var directionalLight = new THREE.DirectionalLight(color, intensity);
+                directionalLight.position.set(x, y, z);
+                scene.add(directionalLight);
+                directionalLight.castShadow = true;
+                var d = 1;
+                directionalLight.shadow.camera.left = -d;
+                directionalLight.shadow.camera.right = d;
+                directionalLight.shadow.camera.top = d;
+                directionalLight.shadow.camera.bottom = -d;
+                directionalLight.shadow.camera.near = 1;
+                directionalLight.shadow.camera.far = 4;
+                directionalLight.shadow.mapSize.width = 1024;
+                directionalLight.shadow.mapSize.height = 1024;
+                directionalLight.shadow.bias = -0.005;
+            }
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                //controls.handleResize();
+                render();
+            }
+            // function to send throttle values and potentially malfunctions to Data plattform before raspberry pi will fetch them. 
+            
+/*
+            function sendDataToAPI() {
+                //var y = setInterval(function 
+                var z = setInterval(function() {
+                    nowSend = Date.now();
+                    //console.log(throttle);
+                    
+                    var deltaTime = nowSend - lastSendThrottleTime;
+                    var tagId = "throttle5"; 
+                    postTimeseriesDatapoint(tagId, nowSend, throttle);
+
+                    async function postTimeseriesDatapoint(tagId, nowSend, throttle){
+
+                        if (sensorData.enableRemote == true){ 
+                            var data = {timestamp: nowSend, value: throttle,}
+                        }
+
+                        if (sensorData.enableRemote == false){ 
+                            var disabledSignal = 99; 
+                            var data = {timestamp: nowSend, value: disabledSignal,}
+                        }
+
+                        var items = [
+                            data
+                            ];
+                            var body = {
+                            "items": items
+                        }
+
+                        const url = "https://api.cognitedata.com/api/0.4/projects/demo/timeseries/data/" + tagId;
+                        const response = await fetch(url, {
+                            headers: {
+                                "api-key": apiKey,
+                                "Accept": "application/json",
+                                "Content-Type": "application/json",
+                            },
+                            method: "POST",
+                            processData: false,
+                            body: JSON.stringify(body),
+                        });
+                        //console.log("---Posted timeseries");
+                        //console.log(tagId, data);
+                    }
+                    lastSendThrottleTime = nowSend;
+                    
+                    if(enableRemoteOperation == false){
+                        clearInterval(z);
+                    }
+                }, 1000);
+            }
+            */
+
+
+            $( function() {
+                $( "#slider-range-min" ).slider({
+                    range: "min",
+                    value: 10,
+                    min: 0,
+                    max: 30,
+                    slide: function( event, ui ) {
+                        $( "#amount" ).val( ui.value +  " m/s" );
+                        remoteWindSpeed = ui.value;
+                        sliderWindValue = ui.value; 
+                         
+                    }
+                });
+                $( "#amount" ).val( $( "#slider-range-min" ).slider( "value" ) + " m/s" );
+            } );
+
+            function setSliderValues(){
+
+                //if received wind speed from wind turbine:
+                var adjustedWind = (wind);
+                smoothedSlider += (adjustedWind - smoothedSlider)/5; 
+                sliderWindValue = smoothedSlider; 
+                
+                //Setting the slider to the same as wind value. 
+                $( "#slider-range-min" ).slider({
+                    value: smoothedSlider,})
+                //Setting the value in the label text box: 
+                $( "#amount" ).val(smoothedSlider.toFixed(1) + " m/s")
+            }
+
+            async function pollData() {
+                try {
+                    var response = await fetch('https://test.cogniteapp.com/http2mqtt/awaitmessage' +
+                        '?topic=ignite-windturbine' +
+                        '&clientId=' + clientId +
+                        '&clientTime=' + new Date().getTime());
+                    if (response.status === 200) {
+                        var json = await response.json();
+                        onMessage(json);
+                    }
+                    setTimeout(pollData, 250);
+                } catch(e) {
+                    console.log(e);
+                    setTimeout(pollData, 1000);
+                }
+            }
+            pollData();
+
+            function onMessage(jsonMessage) {
+                console.log(jsonMessage);
+
+                rpm = jsonMessage.rpm; 
+                wind = jsonMessage.wind;
+                torque = jsonMessage.torque;
+                timeStampRPM = jsonMessage.time; 
+                timeStampPot = jsonMessage.time; 
+                timeStampCurrent = jsonMessage.time; 
+
+                console.log(rpm  + " " + wind + " " + torque);
+
+
+                //console.log(jsonMessage);
+            }
+
+
+            function updateSensorData() {
+                
+                /*if (enableRemoteOperation == true){
+                    sliderWindValue = remoteWindSpeed; 
+                }*/
+                
+                throttle = remoteWindSpeed; 
+/*
+                if (remoteWindSpeed >=4 && remoteWindSpeed <= 25){
+                    throttle = remoteWindSpeed; 
+                }
+                        //if wind conditions are outside operation limits 
+                else{
+                    throttle = 0; 
+                }
+                */
+                // https://api.cognitedata.com/api/0.3/projects/demo/timeseries/data/rpm'
+
+                if (datData.fetchData) {
+                    now = Date.now();
+                    if (now - lastTime > reciveDataRate) {
+
+                        
+
+
+
+/*
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/rpm5', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response)
+                               
+                                rpm = response.data.data.items[0].value;
+                                console.log("RPM" + response.data.data.items[0].timestamp);
+                                //depending on what motor is used, this value should be modified: 
+                                rpm = rpm; 
+                                timestampRPM = response.data.data.items[0].timestamp;
+                                // console.log(timestampRPM);
+                            });
+                            */
+
+                           /*
+
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/torque5', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response.data)
+                                current = response.data.data.items[0].value;
+                                timestampCurrent = response.data.data.items[0].timestamp;
+                            });
+
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/wind5', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response.data)
+                                wind = response.data.data.items[0].value;
+                                timestampPot = response.data.data.items[0].timestamp;
+
+
+                            });
+                            axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/rpm5extra', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response)
+                                if(response.data.data.items[0].timestamp > timestampRPM){
+                                    rpm = response.data.data.items[0].value;
+                                    timestampRPM = response.data.data.items[0].timestamp;
+                                    console.log("Extra");
+                                }
+                             
+                            });
+
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/torque5extra', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response.data)
+                                if(response.data.data.items[0].timestamp > timestampCurrent){
+                                    current = response.data.data.items[0].value;
+                                    timestampCurrent = response.data.data.items[0].timestamp;
+                                }
+                                
+                            });
+
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/wind5extra', {
+                            headers: {
+                                'Api-Key': apiKey
+                            }
+                        })
+                            .then(function(response) {
+                                // console.log(response.data)
+                                if(response.data.data.items[0].timestamp > timestampPot){
+                                    wind = response.data.data.items[0].value;
+                                    timestampPot = response.data.data.items[0].timestamp;
+                                }
+                            });
+                            */
+
+                        axios.get('https://api.cognitedata.com/api/0.5/projects/demo/timeseries/latest/wt-orient-gamma', {
+                            headers: { 'Api-Key': apiKey }
+                        }).then(function(response) {
+                            angleWanted = (response.data.data.items[0].value || 0) / 180 * Math.PI;
+
+                            var angleWantedTime = response.data.data.items[0].timestamp;
+                            var delta = angleWantedTime - anglePrevTime;
+                            if (delta > 0) {
+                                angleSpeed = (angleWanted - angleCurrent) / delta;
+                                angleSpeed = angleSpeed * 0.25; // Chase rather than reach)
+                                angleSpeed = Math.max(angleSpeed, -0.1);
+                                angleSpeed = Math.min(angleSpeed, 0.1);
+                                anglePrevTime = angleWantedTime;
+                            }
+                        });
+                        lastTime = now;
+
+                    }
+                } 
+                
+                else {
+                    generateSensorData();
+
+                }
+
+                milliseconds = Date.now();
+                delayRPM = (milliseconds - timestampRPM) / 1000;
+                delayCurrent = (milliseconds - timestampCurrent) / 1000;
+                delayWind = (milliseconds - timestampCurrent) / 1000;
+                avgDelay = (delayWind + delayRPM + delayCurrent) / 3;
+                isOnline = (avgDelay < 60);
+            
+            }
+
+
+            // For debug
+            function generateSensorData() {
+                var now = Date.now();
+                var period = (2.0 / (2 * Math.PI)) * (now/2000);
+                
+                rpm = 10*(Math.sin(period) + 1);
+                timestampRPM = now - 500;
+
+                current = 12 * (Math.sin(period) + 1);
+                timestampCurrent = now - 500;
+
+                wind = 25/2.0 * (Math.sin(period) + 1);
+                timestampPot = now - 500;
+            }
+
+            function secondsToHms(d) {
+                // d = Number(d);
+                // var days = Math.floor(d / (24 * 3600));
+                var h = Math.floor(d / 3600);
+                var m = Math.floor(d % 3600 / 60);
+                var s = Math.floor(d % 3600 % 60);
+
+                // var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+                // var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
+                // var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+
+                var hDisplay = h +  "h ";
+                var mDisplay = m + "m ";
+                var sDisplay = s + "s";
+
+                return hDisplay + mDisplay + sDisplay;
+            }
+
+
+            function updateSensorText() {
+                if (timestampRPM > 0) {
+                    if (datData.fetchData) {
+                        document.getElementById("sensorText").style.display = 'block';
+                        if (isOnline) {
+                            //document.getElementById("RPM").innerHTML = "Angular speed: " + rpm.toFixed(1) + " rpm. Rotational scale 3:1." ;
+                            //document.getElementById("Current").innerHTML = "Torque: " + smoothedTorque + " kNm";
+                            //document.getElementById("pot").innerHTML = "Wind: " + wind.toFixed(1) + " m/s";
+                            document.getElementById("pot").innerHTML = "Production entire park: " + mwEntirePark.toFixed(1) + "MW";
+                            document.getElementById("avgDelay").innerHTML = "Delay: " + avgDelay.toFixed(1) + " s";
+                        } else {
+                            //document.getElementById("RPM").innerHTML = "";
+                            //document.getElementById("Current").innerHTML = "";
+                            document.getElementById("pot").innerHTML = "";
+                            document.getElementById("avgDelay").innerHTML = "Last online: " + secondsToHms(avgDelay);
+                        }
+                    } else {
+                        document.getElementById("sensorText").style.display = 'none';
+                    }
+                }
+            }
+
+            function createPowerBar() {
+                if (powerMesh) {
+                    if (datData.showPowerBar) {
+                        powerBarBackGroundMesh.visible = true;
+                        
+                        //smooths transitions between different MW
+                        //smootedMW += (rpm - smootedMW) / 20;
+                        
+                        mw = powerBarBackGroundMesh.visible = true;
+                        
+                        powerHeight = Math.max(70 *smoothedThisTurbine/maxPower, 0.1);
+
+
+                        powerPos = -35 + powerHeight / 2;
+
+                        //(0, 200, 200)
+                        powerMesh.position.set(2, 0, powerPos);
+                        powerMesh.scale.z = powerHeight;
+                    } else {
+
+                        powerBarBackGroundMesh.visible = false;
+                        // powerMesh.visible = false;
+                    }
+                }
+            }
+
+
+            // create a canvas element
+            function createPowerText() {
+                if (powerBarBackGroundMesh) {
+
+                    if (enableRemoteOperation == true){
+                        sliderWindValue = remoteWindSpeed; 
+                    }
+
+                    if(enableRemoteOperation  == false){
+                        sliderWindValue = wind; 
+                    }
+
+                    var avoidVolatility = 0;
+                    //remoteWindSpeed =  Math.floor((7/3)*remoteWindSpeed - (16/3));
+                    //Math.floor((7/3)*sliderWindValue - (16/3));
+
+
+                    if (sliderWindValue <= 25 && sliderWindValue >= 4){ 
+                        
+                        if (sliderWindValue < 13){
+                            avoidVolatility = (11.5/9)*sliderWindValue - 4.611; 
+                        }
+
+                        if (sliderWindValue >= 13){
+                            avoidVolatility = 12; 
+                        }
+                    }
+                    if(smoothedRPM < 3){
+                        mwThisTurbine = 0;
+                    }
+                    if (smoothedRPM >= 3 && smoothedRPM <= 14 ){
+                        mwThisTurbine = ((1.15*(Math.floor(smoothedRPM)) - 4.1) + 3*avoidVolatility)/4;
+                    }
+/*
+                    if (smoothedRPM <= 10 ){
+                        mwThisTurbine = Math.floor(smoothedRPM)*0.04166;
+                    }
+
+                    if (smoothedRPM < 14 && smoothedRPM > 10){
+                        mwThisTurbine = (Math.floor(smoothedRPM)*0.03570857143 + avoidVolatility*3)/4;
+                    }
+
+                    if (smoothedRPM >= 14 && smoothedRPM <= 26){
+                        mwThisTurbine = (Math.floor(smoothedRPM)*(11.5/12)-12.91667 + avoidVolatility*3)/4;
+                    }
+                    */
+
+                    if (smoothedRPM > 14 ){
+                        mwThisTurbine = 12;
+                    }
+
+                    smoothedThisTurbine += (mwThisTurbine - smoothedThisTurbine)/40; 
+                    smoothedMw += (mwPerTurbine - smoothedMw)/10;
+                    powerText = smoothedThisTurbine.toFixed(1) + ' MW';
+                    powerTextMesh.material.map.text = powerText;
+                }
+            }
+
+            function MwForEntirePark(){
+
+                if (enableRemoteOperation == true){
+                    sliderWindValue = remoteWindSpeed; 
+                }
+
+                if(enableRemoteOperation  == false){
+                    sliderWindValue = wind; 
+                }
+
+                if (sliderWindValue <= 25 && sliderWindValue >= 4){
+                    
+                    if (sliderWindValue < 13){
+                        mwPerTurbine = (11.5/9)*sliderWindValue - 4.611; 
+                    }
+                    if (sliderWindValue >= 13){
+                        mwPerTurbine = 12; 
+                    }
+
+                    //mwPerTurbine = (0.5*1.23*35968*(remoteWindSpeed*remoteWindSpeed*remoteWindSpeed)*0.0347)/1000000; 
+                    //if (remoteWindSpeed <= 
+
+                    
+                    mwEntirePark = Math.round(mwPerTurbine*39+ mwPerTurbine*1.6667 + mwThisTurbine); 
+
+                    //var housesPerTurbine = (mwPerTurbine/12)*16000; 
+
+                    //divides houses powered  by 2 after request from Aker.
+                    housesPowered = ((16000/12)*mwEntirePark)/2;  
+                    //housesPowered = housesPerTurbine*40; 
+                }
+
+                else{
+                    mwPerTurbine = 0; 
+                    mwEntirePark = 0; 
+                    housesPowered = 0; 
+                    
+                } 
+
+
+                /*
+                if (avgDelay < 15 && enableRemoteOperation == false){
+                    
+                    if(wind >=4 && wind <= 25){
+
+                        mwPerTurbine = (0.5*1.23*35968*(wind*wind*wind)*0.0347)/1000000; 
+                        mwEntirePark = Math.round(mwPerTurbine*40); 
+
+                        var housesPerTurbine = (mwPerTurbine/12)*16000; 
+                        housesPowered = housesPerTurbine*40; 
+                    }
+                    
+
+                    else{
+                        mwPerTurbine = 0; 
+                        mwEntirePark = 0; 
+                        housesPowered = 0; 
+                        
+                    }
+                }
+
+                */
+
+            }
+
+            function createStatusOperations(){
+                var comma1 = "";
+                var comma2 = "";
+                var and3 = "";
+
+                scoreTextSprite.visible = false;
+                
+                /*if (enableRemoteOperation == true){
+                    
+                    if (remoteWindSpeed >= 4 && remoteWindSpeed <= 25) {
+                        scoreText = 'Remote operation enabled!';
+                        scoreTextSprite.material.map.text = scoreText; 
+                    }   
+                    
+                    if (remoteWindSpeed < 4) {
+                        scoreText = 'Not enough wind, facility turned off!';
+                        scoreTextSprite.material.map.text = scoreText; 
+                    }   
+
+                    if (remoteWindSpeed > 25) {
+                        scoreText = 'Too much wind, facility turned off!';
+                        scoreTextSprite.material.map.text = scoreText; 
+                    }   
+                }
+                */
+
+                if (enableRemoteOperation == false && avgDelay < 15 ) {
+                    scoreText = 'Local operation is enabled!';
+                    scoreTextSprite.material.map.text = scoreText; 
+                }
+
+                if (avgDelay > 15 && enableRemoteOperation == false) {
+                    scoreText = 'Wind turbine model is turned off!';
+                    scoreTextSprite.material.map.text = scoreText; 
+                } 
+                //else if (malfunctionIsActive == false) {
+            }
+
+            function createRPMText() {
+                if (arrow) {
+                    if (datData.showRPM) {
+                        rpmTextSprite.visible = true;
+                        arrow.visible = true;
+                        rpmText = Math.floor(smoothedRPM) + ' rpm';
+                        rpmTextSprite.material.map.text = rpmText;
+                        // console.log(arrow.material.opacity);
+                        // var windOpacity = rpm/70;
+                        // windOpacity = Math.min(windOpacity, 0.9);
+                        // windOpacity = Math.max(windOpacity, 0.3);
+                        // arrow.material.opacity = windOpacity;
+                        // console.log();
+                        // console.log(arrow);
+                    } else {
+                        rpmTextSprite.visible = false;
+                        arrow.visible = false;
+                    }
+                }
+            }
+
+
+            function animateRotor() {
+                if (rotor) {
+
+                    waveAnimate += 1; 
+                    base.position.set(0 , -25 + Math.sin(waveAnimate/30), 0);
+
+                    if (rpm <290) {
+                        //smoothedRPM makes the acceleration of the rotor slower 
+                        smoothedRPM += ((rpm*0.1375) - smoothedRPM) / 20;
+                        //smoothedRPM = 0; 
+                        // Rotate turbine
+
+                        if (operationsOK == true) {
+                            var timeStep = rpm === 0 ? 0 : -2 * Math.PI / 30000 * smoothedRPM;
+                            rotor.rotation.z += timeStep * (now - oldTime);
+                        }
+                        
+                        //Visual inspection of the other rotors with regards to this rotor led to this first degree scalar function of rotation speed:  
+                        var scaleRotation = 0;
+                        if (sliderWindValue < 13){
+                            //starts at 1.2 ends at 0.92:
+                            //scaleRotation = -0.0311*sliderWindValue + 1.3244;
+                            //Starts at 1.3 ends at 0.92: 
+                            //scaleRotation = -0.04222 * sliderWindValue + 1.46888; 
+                            //Starts at 1.4 ends at 0.92: 
+                            //scaleRotation = -0.05333 * sliderWindValue + 1.61332; 
+                            //Starts at 1.5 ends at 0.92: 
+                            //scaleRotation = -0.06444 * sliderWindValue + 1.75776;
+                            //Starts at 1.8 ends at 0.92: 
+                            scaleRotation = (-0.09777 * sliderWindValue + 2.19108)*2;
+                            //
+                            //scaleRotation = 1;
+                        }
+
+                        else{
+                            scaleRotation = 0.92*2; 
+                        }
+
+                        //waveAnimate += 1; 
+                        for (i = 0; i < amountLength; i++) {
+                            for (j = 0; j < amountWidth; j++) {
+                                if(i == 4 && j == 0){
+                                }
+
+                                else{
+                                    
+                                    var turbineNumber = i + (j*amountLength);
+                                    if (rotorPhaseAdjust == false){
+                                        rotorMatrix[turbineNumber].rotation = rotor.rotation.clone();
+                                        rotorMatrix[turbineNumber].rotation.z = (5*j+i/44);
+                                    }
+
+                                    /*
+                                    if (rotorPhaseAdjust == false){
+                                        for (i = 0; i < amountLength; i++) {
+                                            for (j = 0; j < amountWidth; j++) {
+                                            var turbineNumber2 = i + (j*amountLength);
+                                            rotorMatrix[turbineNumber].rotation = rotor.rotation.clone();
+                                            rotorMatrix[turbineNumber].rotation.z = (1+j*i/44);
+                                            }
+                                        }
+                                        rotorPhaseAdjust = true; 
+                                    }
+                                    */
+
+                                    //if the difference in production reaches 2 MW, then the animation will differ as welL: 
+                                    if ((mwThisTurbine/mwPerTurbine) < 1.2){
+                                        //windPos += -0.001634 *(wind * (now - oldTime)*scaleRotation/4.5);
+                                        //rotorMatrix[turbineNumber].rotation.set(0 , 0.467*Math.PI, ((-0.001634 * windPos/3 + 0.0212+(i*j))));
+                                        //rotorMatrix[turbineNumber].rotation.z = clone
+                                        rotorMatrix[turbineNumber].rotation.z += -(sliderWindValue * (now-oldTime)*scaleRotation)/16630;
+                                        
+                                        //rotorMatrix[turbineNumber].rotation.z += -(wind * (now-oldTime)*scaleRotation)/10000;
+                                    }
+
+                                    //if there is only a small difference between measured MW and optimal MW, then rotor follows pace of digital twin model. 
+                                    if ((mwThisTurbine/mwPerTurbine) >= 1.2){
+                                        windPos += timeStep * (now - oldTime);
+                                        //rotorMatrix[turbineNumber].rotation.set(0 , 0.467*Math.PI, windPos);
+                                        rotorMatrix[turbineNumber].rotation.z += timeStep * (now - oldTime);
+
+                                    }
+
+                                    //rotorMatrix[turbineNumber].rotation.z += timeStep * (now - oldTime);
+                                    //adding a little bit motion of turbine due to waves. 
+                                    //base.position.set(0 , -25 + 2*Math.sin(waveAnimate/30), 0);
+                                }  
+                            }
+                        }
+                        rotorPhaseAdjust = true;
+                        // if streaming data from the platform: 
+                        if(enableRemoteOperation == false){
+                            setSliderValues();
+                        }
+                    } 
+                    
+                    else {
+                        mwThisTurbine = 0;
+                        smoothedRPM = 0; 
+                        if (remoteWindSpeed >=4 && remoteWindSpeed<= 25){
+                            remoteWind += remoteWindSpeed*(now-oldTime)/4;
+                        }
+                        //if wind conditions are outside operation limits 
+                        else{
+                            remoteWind += remoteWindSpeed*(now-oldTime)/30; 
+                        }
+                        for (i = 0; i < amountLength; i++) {
+                            for (j = 0; j < amountWidth; j++) {
+                                if(i == 4 && j == 0){
+                                }
+                                else{
+                                    var turbineNumber = i + (j*amountLength);
+                                    //rotorMatrix[turbineNumber].rotation.set(0 , 0.467*Math.PI, (-0.0001 *now *(1+j*i/44)));
+                                    //adding a slight difference in the angle of the different rotors. 
+                                    rotorMatrix[turbineNumber].rotation.set(0 , 0.467*Math.PI, ((-0.0015 * remoteWind/3)*(1+j*i/44)));
+                                }
+                            }
+                        }
+                        rotor.rotation.set(0, 0.467*Math.PI, -0.0001 * now);
+                        /*
+                        for (i = 0; i < amountLength; i++) {
+                            for (j = 0; j < amountWidth; j++) {
+                                var turbineNumber = i + (j*amountLength);  
+                                rotorMatrix[turbineNumber].rotation.set(0, Math.PI / 2, -0.0015 * now);  
+                            }
+                        }
+                        */
+                    }
+                }
+                if (base) {
+                    if ((angleSpeed > 0 && angleCurrent < angleWanted) ||
+                        (angleSpeed < 0 && angleCurrent > angleWanted)) {
+                        angleCurrent += angleSpeed * (now - oldTime);
+                    }
+                    if ((angleSpeed > 0 && angleCurrent > angleWanted) ||
+                        (angleSpeed < 0 && angleCurrent < angleWanted)) {
+                        angleCurrent = angleWanted;
+                        angleSpeed = 0;
+                    }
+                    //base.rotation.z = angleCurrent;
+                }
+            }
+
+            //implemented possibility of enabling helicopter maintenance in the future.
+            function animateRotorHelicopter() {
+                if (helicopterRear){
+                 helicopterRotor.rotation.z +=  1;
+                 helicopterRear.rotation.x += 1;
+                }
+            }
+
+            function createDebugInfo() {
+                /*
+                if (datData.show3DInfo) {
+                    details.style.visibility = "visible";
+                    var rendererInfo = this.renderer.info;
+
+                    var debugInfo = '<p>Textures: <strong>' + rendererInfo.memory.textures + '</strong></p>' +
+                        '<p>Geometries: <strong>' + rendererInfo.memory.geometries + '</strong></p>' +
+                        '<p>Programs: <strong>' + rendererInfo.memory.programs + '</strong></p>' +
+                        '<p>Vertices: <strong>' + rendererInfo.render.vertices + '</strong></p>' +
+                        '<p>Faces: <strong>' + rendererInfo.render.faces + '</strong></p>' +
+                        '<p>Draw Calls: <strong>' + rendererInfo.render.calls + '</strong></p>';
+
+                    details.innerHTML = debugInfo;
+
+                } else {
+                    details.style.visibility = "hidden";
+                }
+                */
+            }
+
+            function animateStats() {
+                if (datData.showFPS) {
+                    stats.dom.style.visibility = "visible";
+                    stats.update();
+                } else {
+                    stats.dom.style.visibility = "hidden";
+                }
+            }
+
+            function animateRedHub() {
+                if (rotor) {
+                    if (datData.showTorque) {
+                        //torque is set equal to the power generated. J/s = W = Nm   
+                        torqueTextSprite.visible = false;
+
+                        smoothedTorque = (smoothedMw*1000).toFixed(0);
+
+                        torqueTextSprite.material.map.text = smoothedTorque + " kNm"; 
+                        var redness = 1; 
+                        //var redness = -(smoothedTorque / 12000) + 1;
+                        
+                        if ((mwThisTurbine/mwPerTurbine) >= 0.85){
+                            redness = 1;
+                        }
+
+                        if ((mwThisTurbine/mwPerTurbine) <= 0.85){
+                            redness = 1-(Math.abs(mwPerTurbine/mwThisTurbine)/7);
+                        }
+                        
+                        redness = Math.max(redness, 0.25);
+
+                        for (i = 0; i < amountLength; i++) {
+                            for (j = 0; j < amountWidth; j++) {
+                                if(i == 4 && j == 0){
+                                }
+                                else{
+                                    var turbineNumber = i + (j*amountLength);  
+                                    rotorMatrix[turbineNumber].material = rotor.material.clone();
+                                    rotorMatrix[turbineNumber].material.color.r = 1;
+                                    rotorMatrix[turbineNumber].material.color.g = 1;
+                                    rotorMatrix[turbineNumber].material.color.b = 1;
+                                }  
+                            }
+                        }
+
+                        rotor2.material.color.r = 1;
+                        rotor2.material.color.g = 1;
+                        rotor2.material.color.b = 1;
+                        
+                        rotor3.material = rotor2.material;
+                        rotor4.material = rotor2.material;
+                        rotor5.material = rotor2.material;
+
+                        //scene.children[0].material.emissive.setHex( 0xff0000 );
+                        rotor.material.color.g = redness;
+                        rotor.material.color.b = redness;
+
+                    } else {
+                        torqueTextSprite.visible = false;
+                        rotor.material.color.r = 1;
+                        rotor.material.color.g = 1;
+                        rotor.material.color.b = 1;
+                    }
+                }
+            }
+
+            //entering gameMode. Wants user to choose either manual or Cognite mode
+
+
+            function confirmRemote(){    
+                swal("Remote operation is NOT available.", {
+                    icon: "error",
+                    buttons: {
+                        //cancel: "Manual mode",
+                        catch: {
+                            text: "OK",
+                            value: "catch",
+                        },
+                    },
+                })
+/*
+                .then((value) => {
+                    //gives feedback that remote operation is enabled
+                    switch (value) {
+                        case "catch":
+                        swal("Remote operation enabled. Have a safe one!", {
+                            icon: "success",
+                            buttons: {
+                                catch: {
+                                    text: "Confirm",
+                                    value: "confirm",
+                                },
+                            },
+                        })
+                        break;
+
+                        //if click is outside pop up, it should still give feedback
+                        default:
+                        swal("Remote operation enabled. Have a safe one!", {
+                            icon: "success",
+                            buttons: {
+                                catch: {
+                                    text: "Confirm",
+                                    value: "confirm",
+                                },
+                            },
+                        })                    
+                    }
+                });*/
+            }
+
+            //relocating helicopter after animated maintenance. 
+            function relocateHelicopter() {
+                helicopter.position.z = 2000;
+            }
+
+            //Starts the clock on how long the game has lasted, and also performs various counting actions. 
+            function timerGame() {
+                //document.getElementById("timeCounter").style.visibility = "visible";
+
+                //This could launch the different maintenance animations in the background:
+
+                var x = setInterval(function() {
+                    if(startNow == true){
+                    }
+
+                    if (startNow == false){
+                        //document.getElementById("timeCounter").style.visibility = "hidden";
+                        clearInterval(x);
+                    }
+                }, 1);
+                // Update the count down every 1 second
+            }
+
+            //animates maintenance, and updates key values in game. i.e wheter error is active, operational costs and similar. 
+            function findCordinatei(number){
+                var cordinatei; 
+                var cordinatej = findCordinatej(number); 
+                cordinatei = number /(cordinatej+amountLength);                
+                    //var cordinate1 = Math.round((number/10) - (number%10)/10)-1;
+                    //cordinate1 = 8000 - cordinate1* 2000;
+                cordinatei = Math.round(cordinatei);     
+
+                var positionY = 8000-(2000*cordinatei); 
+                return positionY;
+            }
+
+
+
+            function findCordinatej(number){
+                var cordinatej; 
+                if (number <= 10){
+                    cordinatej = 0;
+                }
+                if (number > 10 && number <=21){
+                    cordinatej = 1;
+                }
+                if (number > 21 && number <= 32){
+                    cordinatej = 2;
+                }
+                if (number > 32){
+                    cordinatej = 3;
+                }
+
+                cordinatej = Math.round(cordinatej);  
+                var positionX = cordinatej*(-2000);
+                return positionX;
+            }
+                
+
+            function animateMaintenance() {
+                
+                // add Tween
+                // INSTRUCTIONS - HERE - START http://www.inkfood.com/tween-3d-objects/
+
+                var randomTurbine = Math.round(Math.random() * 43);
+
+                var goToX = findCordinatei(randomTurbine); 
+                var goToY = findCordinatej(randomTurbine);
+
+
+                //console.log(goToX);
+                //console.log(goToY);
+                
+                helicopter.visible = true;
+                var tween = new TWEEN.Tween(helicopter.position).to({ x: goToY - 30, y: 450, z: -goToX }, 5000).start();
+                tween.easing(TWEEN.Easing.Quadratic.InOut);
+                var tween2 = new TWEEN.Tween(helicopter.rotation).to({ x: (-5/8)*Math.PI , /*y: 0, z: 2*Math.PI */}, 2500).start();
+                tween2.easing(TWEEN.Easing.Quadratic.InOut);
+                tween2.yoyo(true);
+                tween2.repeat(1);
+                
+                //tween.repeat(100); 
+                //tween.yoyo(true);
+                //ADD EVENTS TO TWEEN
+
+                tween.onStart(function() { console.log("start") });
+                
+                tween.onComplete(function() {
+                    operationsOK = false; 
+
+                    var tween = new TWEEN.Tween(helicopter.position).to({ x: -30, y: 450, z: 1 }, 5000).start();
+                    
+                    tween.onComplete(function() {
+                        operationsOK = true; 
+
+                        var tween = new TWEEN.Tween(helicopter.position).to({ x: -30, y: 450, z: -2000 }, 5000).start();
+                        tween.easing(TWEEN.Easing.Quadratic.InOut);
+
+                        var tween2 = new TWEEN.Tween(helicopter.rotation).to({ x: (-12/16)* Math.PI , /*y: 0, z: 2*Math.PI */}, 2500).start();
+                        tween2.easing(TWEEN.Easing.Quadratic.InOut);
+                        tween2.yoyo(true);
+                        tween2.repeat(1);
+                        
+                        tween2.onComplete(function() {
+
+                            console.log("yihaaaaaa")
+                            helicopter.visible = false;
+                            relocateHelicopter();
+                            //resets requested maintenance. Now possible to push request maintenance again. 
+                            maintenanceRequested = false;
+                            stepSize = 1; 
+                        })
+                    })
+                    
+                    console.log("complete") 
+                //helicopter.visible = false;
+                });
+            }
+
+            function render() {
+                TWEEN.update();
+                animateStats();
+                animateRotor();
+                createPowerBar();
+                createPowerText();
+                createRPMText();
+                updateScoreBoard()
+                // createArrow();
+                animateRedHub();
+                createDebugInfo();
+                // renderer.render(scene, camera);
+                animateRotorHelicopter();
+                createStatusOperations();
+                MwForEntirePark();
+            }
+
+            function animate() {
+                now = Date.now(); // global variable
+                updateSensorData();
+                updateSensorText();
+                render();
+                oldTime = now; // global variable
+            }
+
+            window.randomScalingFactor = function() {
+                return (Math.random() > 0.5 ? 1.0 : 0) * Math.round(Math.random() * 100);
+            }
+
+            function updateScoreBoard(){
+
+                smoothedHousesPowered += (housesPowered - smoothedHousesPowered) / 10;
+                smoothedHousesPowered = Math.round(smoothedHousesPowered); 
+
+                if (smoothedHousesPowered < 20){
+                    smoothedHousesPowered = 0; 
+                }
+
+                var x = document.getElementById("myDIV2");
+                x.innerHTML = smoothedHousesPowered.toLocaleString('US') + " homes" ;
+
+                if (sliderWindValue < 4){
+                    statusOperationText = "Off"; 
+                }
+                if (sliderWindValue  >= 4 && sliderWindValue < 12 ){
+                    statusOperationText = "Production"; 
+                }
+                if (sliderWindValue  >= 12 && sliderWindValue <= 25 ){
+                    statusOperationText = "Peak production"; 
+                }
+                if (sliderWindValue > 25 ){
+                    statusOperationText = "Cut off";
+                }
+
+                var y = document.getElementById("myStatus");
+                y.innerHTML = "Status: " + statusOperationText ;
+            }
+
+            function gameOver(){
+                sendScoreToAPI();
+                //swal("Game over.. You spent US$ " + operationalExpenses.toLocaleString('en') + " on " + days2 + " days and  " +  hours2 + "hours");
+                
+                swal("Game over.. You spent US$ " + smoothedHousesPowered.toLocaleString('en') + " on " + days2 + " days and  " +  hours2 + "hours", {
+                     
+                     icon: "warning",
+                     buttons: {
+                         catch: {
+                             text: "OK, exit game mode.",
+                             value: "catch",
+                         },
+                         
+                     },
+                 })
+                 .then((value) => {
+                     switch (value) {
+                         case "catch":
+                         //operationalExpenses = 0;
+                         break;
+                     }
+                 });
+                //resetVariables();
+            }
+
+
+
+            function resetVariables(){
+                counter = 0;
+                score = 0;
+                enableCognite = false;
+                warningGiven = false; 
+                startTime = new Date().getTime();
+                seconds2 = 0;
+                minutes2 = 0;
+                hours2 = 0;
+                days2 = 0;
+                malfunctionCounter=0;
+                enableMalfunction = false;
+                malfunctionIsActive = false; 
+                maintenanceRequested = false; 
+
+
+                maintenancePart1 = false; 
+                maintenancePart2 = false; 
+                maintenancePart3 = false; 
+                maintenancePart4 = false;
+                malfunctionIsPredicted = false; 
+                noise = 0;
+                dayCounter = 0;
+                hoursOfError = 0; 
+                operationalExpenses = 0;
+                
+                operationsOK = true; 
+                startNow = false; 
+
+                scoreTextSprite.visible = false;
+            }
+
+            function animateOperationalExpenses(extraAmountUsed) {
+                
+                    var y = setInterval(function() {
+                        //stepSize depends on how many components that are necessary to maintain
+                        if (extraAmountUsed > 0) {
+                            operationalExpenses += stepSize;
+                            extraAmountUsed -=  stepSize; 
+                            //gameEngine.operations = operationalExpenses;
+                            //createOperationalText()
+                        }
+                        if (startNow == false){
+                            clearInterval(y);
+                            operationalExpenses = 0; 
+                            //gameEngine.operations = 0
+                        }
+                        if (extraAmountUsed < 0) {
+                            clearInterval(y);
+                            
+                        }
+                    }, 1);
+                // Update the count down every 1 second
+            }
+
+		</script>
+
+	</body>
+</html>
